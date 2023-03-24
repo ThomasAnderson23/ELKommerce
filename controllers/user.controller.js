@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const crypto = require("crypto");
 
 const createUser = async (req, res) => {
   try {
@@ -12,18 +11,19 @@ const createUser = async (req, res) => {
     }
 
     //Encriptar Contraseña creada por el usuario
-    const salt = crypto.randomBytes(10).toString('hex');
-    const hash = crypto.pbkdf2Sync(req.body.password, salt, 5000, 10, 'sha512').toString('hex');
-    console.log(hash);
+    //const salt = crypto.randomBytes(10).toString('hex');
+    //const hash = crypto.pbkdf2Sync(req.body.password, salt, 5000, 10, 'sha512').toString('hex');
     //Guardar info en nuestra base de datos
-    const newUser = new User({...req.body, password: hash});
-    console.log(newUser)
+    const newUser = new User(req.body);
+    newUser.hashPassword(req.body.password);
+
     await newUser.save(); //Guarda la info en Mongo Atlas
 
     res.json({
       success: true,
       message: "User created successfully!",
       id: newUser._id,
+      token: newUser.generateToken(),
     });
   } catch (error) {
     res.json({ success: false, message: error.message });
@@ -58,15 +58,59 @@ const deleteUser = async (req, res) => {
 const editUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await User.findByIdAndUpdate(id, req.body, { new: true });
-    console.log(result);
+ 
+    const authId = req.auth.id;
+    
+    console.log("authId ", authId)
+
+    const result = await User.findByIdAndUpdate(authId, req.body, {
+      new: true,
+    });
+
     if (!result) {
-      throw new Error("Usuario no existe, imposible de editar!");
+      throw new Error("User does not exist. Impossible to edit");
     }
-    res.json({ success: true, message: "Usuario editado con éxito!" });
+    if (id !== authId) {
+      throw new Error('You cannot edit. You are not the account user')
+    }
+
+    return   res.json({ success: true, message: "User succesfully edited!" });
+
+
   } catch (error) {
-    res.json({ success: true, message: "Usuario Eliminado" });
+    console.log(error)
+    res.json({ success: false, message: "" });
   }
 };
 
-module.exports = { createUser, getUsers, deleteUser, editUser };
+const signIn = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw new Error("User not registered");
+    }
+    const validate = user.hashValidation(password, user.salt, user.password);
+
+    if (!validate) {
+      throw new Error("Wrong Credentials");
+    }
+
+    // const hash = crypto.pbkdf2Sync(password, user.salt, 5000, 10, 'sha512').toString('hex')
+    //if(user.password !== hash) {
+    //throw new Error('Wrong Password')
+    //}
+
+    res.json({
+      success: true,
+      msg: "You have succesfully logged in",
+      token: user.generateToken(),
+    });
+  } catch (error) {
+    res.json({ success: false, msg: error.message });
+  }
+};
+
+module.exports = { createUser, getUsers, deleteUser, editUser, signIn };
