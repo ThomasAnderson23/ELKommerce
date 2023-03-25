@@ -57,29 +57,30 @@ const deleteUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   try {
-    const { id } = req.params;
- 
+
     const authId = req.auth.id;
-    
-    console.log("authId ", authId)
+
+    console.log("authId ", authId);
+    console.log(req.auth.email);
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (user = req.auth.email ) {
+      throw new Error("Email in use!!");
+    }
 
     const result = await User.findByIdAndUpdate(authId, req.body, {
       new: true,
     });
 
+
     if (!result) {
       throw new Error("User does not exist. Impossible to edit");
     }
-    if (id !== authId) {
-      throw new Error('You cannot edit. You are not the account user')
-    }
-
-    return   res.json({ success: true, message: "User succesfully edited!" });
-
-
+    res.json({ success: true, message: "User succesfully edited!" });
   } catch (error) {
-    console.log(error)
-    res.json({ success: false, message: "" });
+    console.log(error);
+    res.json({ success: false, message: error.message });
   }
 };
 

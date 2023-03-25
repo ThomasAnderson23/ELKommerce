@@ -11,8 +11,10 @@ const userRouter = express.Router();
 
 userRouter.route('/user').post(createUser).get(getUsers);
 
-userRouter.route('/user/:id').delete(deleteUser).put(auth, editUser);
+userRouter.route('/user/:id').delete(deleteUser)
 
 userRouter.route('/user/signin').post(signIn);
+
+userRouter.route('/user/editprofile').put(auth, editUser);
 
 module.exports = userRouter;
