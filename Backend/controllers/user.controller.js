@@ -21,12 +21,12 @@ const createUser = async (req, res) => {
 
     res.json({
       success: true,
-      message: "User created successfully!",
+      msg: "User created successfully!",
       id: newUser._id,
       token: newUser.generateToken(),
     });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.msg });
   }
 };
 
@@ -35,7 +35,7 @@ const getUsers = async (req, res) => {
     const users = await User.find().populate("favoriteProducts");
     res.json({ success: true, users });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.msg });
   }
 };
 
@@ -49,9 +49,9 @@ const deleteUser = async (req, res) => {
       throw new Error("Usuario no existe, imposible de eliminar!");
     }
 
-    res.json({ success: true, message: "Usuario Eliminado" });
+    res.json({ success: true, msg: "Usuario Eliminado" });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.msg });
   }
 };
 
@@ -77,21 +77,25 @@ const editUser = async (req, res) => {
     if (!result) {
       throw new Error("User does not exist. Impossible to edit");
     }
-    res.json({ success: true, message: "User succesfully edited!" });
+    res.json({ success: true, msg: "User succesfully edited!" });
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.msg });
   }
 };
 
 const signIn = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log("llego")
 
     const user = await User.findOne({ email });
 
     if (!user) {
+
+
       throw new Error("User not registered");
+
     }
     const validate = user.hashValidation(password, user.salt, user.password);
 

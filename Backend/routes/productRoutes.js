@@ -8,6 +8,6 @@ const isAdmin = require("../Middlewares/isAdmin");
 
 const productRouter = express.Router();
 
-productRouter.route("/products").post(auth, createProduct).get(auth, isAdmin, getProducts);
+productRouter.route("/products").post(auth, createProduct).get(auth, getProducts);
 
 module.exports = productRouter;

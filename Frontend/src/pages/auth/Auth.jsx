@@ -22,8 +22,12 @@ const Auth = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    registerUser();
-    //getUser()
+
+    if (signUp) {
+      registerUser();
+    } else {
+      loginUser();
+    }
     setUser(initialValues);
   };
 
@@ -36,17 +40,32 @@ const Auth = () => {
     try {
       const newUser = await axios.post("http://localhost:4000/user", user);
       if (newUser.data.success) {
-        alert(newUser.data.message)
+        // alert(newUser.data.msg)
         console.log(newUser.data.token);
       }
+      console.log(newUser.data.msg);
     } catch (error) {
       console.log(error);
     }
   };
-
+  const loginUser = async () => {
+    try {
+      const newUser = await axios.post(
+        "http://localhost:4000/user/signin",
+        user
+      );
+      if (newUser.data.success) {
+        // alert(newUser.data.msg)
+        console.log(newUser.data.token);
+      }
+      console.log(newUser.data);
+    } catch (error) {
+      console.log(error.msg);
+    }
+  };
   //const getUser = async() => {
-    //const newUser = await axios.get("http://localhost:4000/user", user);
-    //console.log(newUser.data)
+  //const newUser = await axios.get("http://localhost:4000/user", user);
+  //console.log(newUser.data)
   //}
 
   return (

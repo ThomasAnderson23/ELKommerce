@@ -17,7 +17,9 @@ const createProduct = async (req, res) => {
       productId: newProduct._id,
     });
   } catch (error) {
-    res.json({ success: false, msg: error.message });
+    res.json({ 
+      success: false, 
+      msg: error.msg });
   }
 };
 
@@ -28,7 +30,7 @@ console.log(req)
     const products = await User.find().populate("favoriteProducts");
     res.json({ success: true, products });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.json({ success: false, msg: error.msg });
   }
 };
 
